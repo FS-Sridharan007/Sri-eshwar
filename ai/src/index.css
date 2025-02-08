@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes wave {
+  0% { background-position: 0 100%; }
+  50% { background-position: 50% 95%; }
+  100% { background-position: 100% 100%; }
+}
+
+.animate-wave {
+  background: url('/wave-pattern.svg') repeat-x bottom;
+  background-size: cover;
+  opacity: 0.9; /* Increase opacity */
+  animation: wave 5s infinite linear; /* Faster movement */
+}
+
+  
