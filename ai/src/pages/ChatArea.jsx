@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { motion } from "framer-motion"; // Import Framer Motion
+import { motion } from "framer-motion";
+import axios from "axios"; // Import Axios for API requests
 
 export default function ChatArea() {
   const [messages, setMessages] = useState([]);
@@ -7,19 +8,35 @@ export default function ChatArea() {
   const [botTyping, setBotTyping] = useState(false);
   const [currentBotMessage, setCurrentBotMessage] = useState("");
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     if (input.trim() !== "") {
-      setMessages([...messages, { text: input, type: "user" }]);
+      const userMessage = { text: input, type: "user" };
+      setMessages([...messages, userMessage]);
       setInput("");
 
-      setTimeout(() => {
-        setBotTyping(true);
-        simulateTyping("I'm here to assist you! 😊");
-      }, 1000);
+      setTimeout(() => setBotTyping(true), 500);
+
+      try {
+        const response = await axios.post("http://localhost:8000/chat/", {
+          messages: [
+            ...messages.map((msg) => ({
+              role: msg.type === "user" ? "user" : "ai",
+              content: msg.text,
+            })),
+            { role: "user", content: input },
+          ],
+        });
+
+        const aiResponse = response.data.response;
+        simulateTyping(aiResponse);
+      } catch (error) {
+        console.error("Error fetching AI response:", error);
+        simulateTyping("Oops! Something went wrong. Please try again.");
+      }
     }
   };
 
-  // Typing effect function (letter by letter)
+  // Typing effect function
   const simulateTyping = (fullText) => {
     let index = 0;
     setCurrentBotMessage("");
@@ -34,19 +51,18 @@ export default function ChatArea() {
         setCurrentBotMessage("");
         setBotTyping(false);
       }
-    }, 50); // Adjust speed (lower = faster)
+    }, 50);
   };
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }} // Start hidden and slightly below
-      animate={{ opacity: 1, y: 0 }} // Smooth fade-in and slide-up
-      transition={{ duration: 1 }} // Control speed
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 1 }}
       className="flex items-center justify-center h-screen bg-gradient-to-br from-[#222831] to-[#393E46] text-white relative"
     >
-      {/* Title */}
       <motion.h1
-        initial={{ opacity: 0, x: -20 }} // Slide from left
+        initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.3, duration: 0.8 }}
         className="absolute top-5 left-6 text-2xl font-bold text-[#00ADB5] tracking-wide drop-shadow-lg"
@@ -54,14 +70,12 @@ export default function ChatArea() {
         ChatBot
       </motion.h1>
 
-      {/* Chat Container */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.9 }} // Appear with scale effect
+        initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.5, duration: 0.8, ease: "easeOut" }}
         className="w-[60%] h-[60vh] flex flex-col bg-[#EEEEEE]/10 backdrop-blur-lg p-6 rounded-2xl shadow-lg border border-gray-700"
       >
-        {/* Chat Header */}
         <motion.h2
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -71,7 +85,6 @@ export default function ChatArea() {
           💬 How can I help you today?
         </motion.h2>
 
-        {/* Chat Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.length === 0 ? (
             <motion.p
@@ -80,7 +93,7 @@ export default function ChatArea() {
               transition={{ delay: 0.9, duration: 0.6 }}
               className="text-gray-400 text-center"
             >
-              Start typing your question...
+              You can share anything with me, You know we are friends,right..??
             </motion.p>
           ) : (
             messages.map((msg, index) => (
@@ -100,7 +113,6 @@ export default function ChatArea() {
             ))
           )}
 
-          {/* Typing Indicator (Smooth Fade) */}
           {botTyping && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -112,7 +124,6 @@ export default function ChatArea() {
             </motion.div>
           )}
 
-          {/* Live Typing Effect (Letter by Letter) */}
           {currentBotMessage && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -125,7 +136,6 @@ export default function ChatArea() {
           )}
         </div>
 
-        {/* Input Box */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
