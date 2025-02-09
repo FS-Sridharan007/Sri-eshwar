@@ -87,6 +87,9 @@ export default function ChatbotLogin() {
             </motion.button>
           </div>
         </div>
+        <div className="flex justify-center items-center text-gray-500 text-sm mb-4 mt-6">
+          <p>Don&apos;t have an account? <a href="/register" className="text-blue-500 hover:underline">Sign up</a></p>
+        </div>
       </motion.div>
     </div>
   );
