@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Robot1 from "../assets/robot.png";
 import Robot2 from "../assets/robot2.png";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -16,7 +17,6 @@ const Signup = () => {
     language: "",
     purpose: "",
   });
-
   const [errors, setErrors] = useState({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const navigate = useNavigate();
@@ -26,7 +26,7 @@ const Signup = () => {
     setErrors({ ...errors, [e.target.name]: "" });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     let validationErrors = {};
 
@@ -43,10 +43,18 @@ const Signup = () => {
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
     } else {
-      setIsSubmitted(true);
-      setTimeout(() => {
-        navigate("/chat-area");
-      }, 1000);
+      try {
+        const response = await axios.post("http://localhost:5000/api/auth/signup", formData);
+        setIsSubmitted(true);
+        setTimeout(() => {
+          navigate("/login");
+        }, 1000);
+      } catch (error) {
+        console.error("There was an error during signup:", error);
+        if (error.response) {
+          setErrors({ apiError: error.response.data.message || "Signup failed. Please try again." });
+        }
+      }
     }
   };
 
@@ -57,7 +65,6 @@ const Signup = () => {
       transition={{ duration: 0.8, ease: "easeOut" }}
       className="flex justify-center items-center min-h-screen bg-blue-100 relative overflow-hidden"
     >
-      {/* Floating Robot 1 (Top Left) */}
       <motion.div
         initial={{ y: -10 }}
         animate={{ y: [0, -15, 0] }}
@@ -67,7 +74,6 @@ const Signup = () => {
         <img src={Robot1} alt="Robot" className="w-16 h-16 opacity-100" />
       </motion.div>
 
-      {/* Floating Robot 2 (Bottom Right) */}
       <motion.div
         initial={{ y: 10 }}
         animate={{ y: [0, 15, 0] }}
@@ -76,11 +82,10 @@ const Signup = () => {
       >
         <img src={Robot2} alt="Robot" className="w-20 h-20 md:w-28 md:h-36 opacity-90" />
         <p className="flex justify-center text-gray-500 text-sm mb-2 mt-2">
-          Hey, What's up!
+          Hey, What&lsquo;s up!
         </p>
       </motion.div>
 
-      {/* Form Container with Slide-In Animation */}
       <motion.div
         initial={{ y: 50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -90,66 +95,24 @@ const Signup = () => {
         <h2 className="text-2xl font-bold text-center mb-4">Sign Up for Chatbot</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            name="fullName"
-            placeholder="Full Name"
-            className="w-full p-2 border rounded-lg focus:ring focus:ring-blue-300"
-            value={formData.fullName}
-            onChange={handleChange}
-          />
+          <input type="text" name="fullName" placeholder="Full Name" className="w-full p-2 border rounded-lg focus:ring focus:ring-blue-300" value={formData.fullName} onChange={handleChange} />
           {errors.fullName && <p className="text-red-500 text-sm">{errors.fullName}</p>}
 
-          <input
-            type="email"
-            name="email"
-            placeholder="Email Address"
-            className="w-full p-2 border rounded-lg focus:ring focus:ring-blue-300"
-            value={formData.email}
-            onChange={handleChange}
-          />
+          <input type="email" name="email" placeholder="Email Address" className="w-full p-2 border rounded-lg focus:ring focus:ring-blue-300" value={formData.email} onChange={handleChange} />
           {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
 
-          <input
-            type="text"
-            name="phone"
-            placeholder="Phone Number (Optional)"
-            className="w-full p-2 border rounded-lg focus:ring focus:ring-blue-300"
-            value={formData.phone}
-            onChange={handleChange}
-          />
+          <input type="text" name="phone" placeholder="Phone Number (Optional)" className="w-full p-2 border rounded-lg focus:ring focus:ring-blue-300" value={formData.phone} onChange={handleChange} />
 
-          <input
-            type="text"
-            name="username"
-            placeholder="Username"
-            className="w-full p-2 border rounded-lg focus:ring focus:ring-blue-300"
-            value={formData.username}
-            onChange={handleChange}
-          />
+          <input type="text" name="username" placeholder="Username" className="w-full p-2 border rounded-lg focus:ring focus:ring-blue-300" value={formData.username} onChange={handleChange} />
           {errors.username && <p className="text-red-500 text-sm">{errors.username}</p>}
 
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            className="w-full p-2 border rounded-lg focus:ring focus:ring-blue-300"
-            value={formData.password}
-            onChange={handleChange}
-          />
+          <input type="password" name="password" placeholder="Password" className="w-full p-2 border rounded-lg focus:ring focus:ring-blue-300" value={formData.password} onChange={handleChange} />
           {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
 
-          <input
-            type="password"
-            name="confirmPassword"
-            placeholder="Confirm Password"
-            className="w-full p-2 border rounded-lg focus:ring focus:ring-blue-300"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-          />
-          {errors.confirmPassword && (
-            <p className="text-red-500 text-sm">{errors.confirmPassword}</p>
-          )}
+          <input type="password" name="confirmPassword" placeholder="Confirm Password" className="w-full p-2 border rounded-lg focus:ring focus:ring-blue-300" value={formData.confirmPassword} onChange={handleChange} />
+          {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword}</p>}
+
+          {errors.apiError && <p className="text-red-500 text-sm text-center">{errors.apiError}</p>}
 
           <select
             name="language"
@@ -175,14 +138,7 @@ const Signup = () => {
             <option value="fun">Fun</option>
           </select>
 
-          {/* Submit Button Animation */}
-          <motion.button
-            whileHover={{ scale: 1.05, backgroundColor: "#28a745" }}
-            whileTap={{ scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            type="submit"
-            className="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-lg transition-all duration-300"
-          >
+          <motion.button whileHover={{ scale: 1.05, backgroundColor: "#28a745" }} whileTap={{ scale: 0.95 }} transition={{ duration: 0.2 }} type="submit" className="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-lg transition-all duration-300">
             {isSubmitted ? "✔️ Signed Up" : "Sign Up"}
           </motion.button>
         </form>
