@@ -4,14 +4,19 @@ import { FaRobot } from "react-icons/fa";
 
 export default function ChatbotGreeting() {
   const [chatMessage, setChatMessage] = useState("");
-  const messages = ["Hello! 👋", "Welcome to AI Login 🤖", "Let's get started!"];
+  const messages = [
+    "Hey there! 😊",
+    "I'm here for you. 💙",
+    "You are not alone. 🤗",
+    "How can I help today?",
+  ];
   let index = 0;
 
   useEffect(() => {
     const interval = setInterval(() => {
       setChatMessage(messages[index]);
       index = (index + 1) % messages.length;
-    }, 2500);
+    }, 3000);
     return () => clearInterval(interval);
   }, []);
 
@@ -22,15 +27,15 @@ export default function ChatbotGreeting() {
       transition={{ duration: 0.8, ease: "easeOut" }}
       className="absolute top-10 flex items-center space-x-3 bg-white/80 backdrop-blur-lg px-5 py-2 rounded-full shadow-lg"
     >
-      {/* Chatbot Icon with Bounce Effect */}
+      {/* Chatbot Icon with Gentle Bounce Effect */}
       <motion.div
         animate={{ y: [0, -5, 0] }}
-        transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" }}
+        transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
       >
         <FaRobot className="text-blue-500 text-2xl" />
       </motion.div>
 
-      {/* AnimatePresence for Smooth Text Transition */}
+      {/* Smooth Transition for Supportive Messages */}
       <AnimatePresence mode="wait">
         <motion.span
           key={chatMessage} // Key change triggers animation

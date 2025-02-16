@@ -126,7 +126,7 @@ const Signup = () => {
             <option value="french">French</option>
           </select>
 
-          <select
+          {/* <select
             name="purpose"
             className="w-full p-2 border rounded-lg focus:ring focus:ring-blue-300"
             value={formData.purpose}
@@ -136,7 +136,7 @@ const Signup = () => {
             <option value="business">Business</option>
             <option value="learning">Learning</option>
             <option value="fun">Fun</option>
-          </select>
+          </select> */}
 
           <motion.button whileHover={{ scale: 1.05, backgroundColor: "#28a745" }} whileTap={{ scale: 0.95 }} transition={{ duration: 0.2 }} type="submit" className="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-lg transition-all duration-300">
             {isSubmitted ? "✔️ Signed Up" : "Sign Up"}

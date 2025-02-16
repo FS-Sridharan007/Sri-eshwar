@@ -38,12 +38,12 @@ export default function ChatbotLogin() {
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className={`p-8 rounded-xl shadow-2xl w-96 border border-white/20 relative ${darkMode ? "bg-gray-800 text-white" : "bg-white/30 backdrop-blur-lg"}`}
+        className={`p-11 rounded-xl shadow-2xl w-96 border border-white/20 relative ${darkMode ? "bg-gray-800 text-white" : "bg-white/30 backdrop-blur-lg"}`}
       >
         <div className="absolute top-4 right-4 cursor-pointer" onClick={() => setDarkMode(!darkMode)}>
           {darkMode ? <Sun className="text-yellow-400" size={24} /> : <Moon className="text-gray-600" size={24} />}
         </div>
-        <h2 className="text-2xl font-bold text-center mb-6">{darkMode ? "Welcome Back 🤖" : "AI Chat Login"}</h2>
+        <h2 className="text-2xl font-bold text-center mb-6">{darkMode ? "Welcome Back 🤖" : "Your AI Companion Awaits"}</h2>
         {error && <p className="text-red-500 text-sm text-center mb-4">{error}</p>}
         <div className="relative mb-5">
           <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={20} />
@@ -77,7 +77,7 @@ export default function ChatbotLogin() {
           className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg transition font-bold"
           onClick={handleLogin}
         >
-          Login
+          Start Chatting 💬
         </motion.button>
         <div className="mt-6 text-center">
           <p className="text-gray-500 text-sm mb-3">Or sign in with</p>

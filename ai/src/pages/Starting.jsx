@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { Menu, X, ArrowRight, Sparkles, Code, Shield, LogIn } from "lucide-react";
+import { Menu, X, ArrowRight, Heart, MessageSquare, Shield, LogIn } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function InteractivePage() {
@@ -36,7 +36,7 @@ export default function InteractivePage() {
         >
           <a href="#" className="text-gray-400 hover:text-white transition-all duration-300">Home</a>
           <a href="#" className="text-gray-400 hover:text-white transition-all duration-300">Features</a>
-          <a href="#" className="text-gray-400 hover:text-white transition-all duration-300">Pricing</a>
+          <a href="#" className="text-gray-400 hover:text-white transition-all duration-300">Support</a>
           <a href="#" className="text-gray-400 hover:text-white transition-all duration-300">About</a>
         </motion.nav>
       )}
@@ -51,7 +51,7 @@ export default function InteractivePage() {
         <nav className="hidden sm:flex gap-6">
           <a href="#" className="text-gray-400 hover:text-white transition-all duration-300">Home</a>
           <a href="#" className="text-gray-400 hover:text-white transition-all duration-300">Features</a>
-          <a href="#" className="text-gray-400 hover:text-white transition-all duration-300">Pricing</a>
+          <a href="#" className="text-gray-400 hover:text-white transition-all duration-300">Support</a>
           <a href="#" className="text-gray-400 hover:text-white transition-all duration-300">About</a>
         </nav>
         
@@ -79,7 +79,7 @@ export default function InteractivePage() {
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="text-3xl sm:text-6xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400 text-center"
         >
-          Welcome to Next-Gen AI
+          Meet Your AI Companion
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 10 }}
@@ -87,7 +87,7 @@ export default function InteractivePage() {
           transition={{ delay: 0.3, duration: 0.6, ease: "easeOut" }}
           className="text-gray-300 mt-4 max-w-xs sm:max-w-lg text-base sm:text-lg text-center"
         >
-          Elevate your relationships with AI-powered insights and seamless integrations.
+          Your 24/7 AI friend who listens, supports, and understands you.
         </motion.p>
         
         <motion.button
@@ -95,7 +95,7 @@ export default function InteractivePage() {
           whileTap={{ scale: 0.95 }}
           className="mt-6 bg-blue-500 px-6 py-3 rounded-lg text-white flex items-center gap-2 shadow-lg hover:bg-blue-600 transition-all duration-300"
         >
-          Get Started <ArrowRight size={20} />
+          Start Chatting <ArrowRight size={20} />
         </motion.button>
 
         {/* Features Section */}
@@ -106,11 +106,11 @@ export default function InteractivePage() {
           className="mt-16 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 w-full"
         >
           {[{
-            icon: Sparkles, title: "AI Intelligence", text: "Advanced AI-powered assistance for seamless connections.", color: "text-blue-400"
+            icon: Heart, title: "Friendly & Supportive", text: "A companion who listens and provides comfort anytime.", color: "text-pink-400"
           }, {
-            icon: Code, title: "User Friendly", text: "Robust relationships with friendly integration", color: "text-green-400"
+            icon: MessageSquare, title: "Meaningful Conversations", text: "Deep, engaging chats that adapt to your emotions.", color: "text-green-400"
           }, {
-            icon: Shield, title: "Secure & Private", text: "Top-tier encryption for your data protection.", color: "text-red-400"
+            icon: Shield, title: "Safe & Secure", text: "Your privacy is our priority with encrypted interactions.", color: "text-red-400"
           }].map((feature, index) => (
             <motion.div 
               key={index}

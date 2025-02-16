@@ -30,7 +30,8 @@ Commands to Run the AI Companion Chatbot
 1️⃣ Frontend Setup
 cd ai
 npm install
-npm start
+npm install vite --save-dev
+npm run dev
 2️⃣ Backend Setup
 cd backend
 pip install -r requirements.txt

@@ -40,7 +40,7 @@ export default function ChatArea() {
         simulateTyping(aiResponse);
       } catch (error) {
         console.error("Error fetching AI response:", error);
-        simulateTyping("Oops! Something went wrong. Please try again.");
+        simulateTyping("Oops! Something went wrong. But don't worry, I'm still here for you. 💙");
       }
     }
   };
@@ -49,7 +49,6 @@ export default function ChatArea() {
     let index = 0;
     setCurrentBotMessage("");
 
-    // Start speaking immediately if unmuted
     if (!isMuted) {
       speakText(fullText);
     }
@@ -71,11 +70,10 @@ export default function ChatArea() {
     if (!window.speechSynthesis) return;
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = "en-US";
-    utterance.rate = 1.2;
+    utterance.rate = 1.1;
     utterance.pitch = 1;
     utterance.volume = 1;
 
-    // Save reference to cancel ongoing speech when needed
     utteranceRef.current = utterance;
 
     window.speechSynthesis.cancel();
@@ -90,14 +88,20 @@ export default function ChatArea() {
       className="flex items-center justify-center h-screen bg-gradient-to-br from-[#222831] to-[#393E46] text-white relative"
     >
       <motion.h1 className="absolute top-5 left-6 text-2xl font-bold text-[#00ADB5] tracking-wide drop-shadow-lg">
-        ChatBot
+        Your AI Companion 
       </motion.h1>
 
       <motion.div className="w-[75%] h-[75vh] flex flex-col bg-[#EEEEEE]/10 backdrop-blur-lg p-6 rounded-2xl shadow-lg border border-gray-700">
-        <motion.h2 className="text-center text-lg text-gray-300 mb-2">💬 How can I help you today?</motion.h2>
+        <motion.h2 className="text-center text-lg text-gray-300 mb-2">
+          💬 I'm here to listen, support, and be your friend.
+        </motion.h2>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {messages.length === 0 && <p className="text-gray-400 text-center">You can share anything with me, You know we are friends, right..??</p>}
+          {messages.length === 0 && (
+            <p className="text-gray-400 text-center">
+              You can share anything with me. I'm always here for you. 
+            </p>
+          )}
 
           {messages.map((msg, index) => (
             <motion.div
@@ -111,8 +115,10 @@ export default function ChatArea() {
             </motion.div>
           ))}
 
-          {botTyping && <p className="text-gray-400 text-sm">ChatBot is typing...</p>}
-          {currentBotMessage && <p className="p-3 rounded-lg bg-[#F8B400] self-start text-black">{currentBotMessage}</p>}
+          {botTyping && <p className="text-gray-400 text-sm">I'm thinking... 🤔</p>}
+          {currentBotMessage && (
+            <p className="p-3 rounded-lg bg-[#F8B400] self-start text-black">{currentBotMessage}</p>
+          )}
 
           <div ref={messagesEndRef} />
         </div>
@@ -122,7 +128,7 @@ export default function ChatArea() {
           <input
             type="text"
             className="flex-1 bg-transparent text-white placeholder-gray-400 outline-none p-2 border-b border-gray-600 focus:border-white transition-all duration-300 ml-3"
-            placeholder="Type your message..."
+            placeholder="Tell me what's on your mind..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && sendMessage()}
@@ -136,7 +142,7 @@ export default function ChatArea() {
             onClick={() => {
               setIsMuted((prev) => !prev);
               if (!isMuted && utteranceRef.current) {
-                window.speechSynthesis.cancel(); // Stop speech immediately when muted
+                window.speechSynthesis.cancel();
               }
             }}
           >
