@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 // eslint-disable-next-line no-unused-vars
 import React, { useState } from "react";
 import { motion } from "framer-motion";
@@ -17,7 +18,8 @@ const Signup = () => {
     language: "",
     purpose: "",
   });
-  const [errors, setErrors] = useState({});
+
+  const[errors, setErrors] = useState({}); 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const navigate = useNavigate();
 

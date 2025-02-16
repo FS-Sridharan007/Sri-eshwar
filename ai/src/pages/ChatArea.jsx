@@ -11,21 +11,15 @@ export default function ChatArea() {
   const sendMessage = async () => {
     if (input.trim() !== "") {
       const userMessage = { text: input, type: "user" };
-      setMessages([...messages, userMessage]);
-      setInput("");
-
-      setTimeout(() => setBotTyping(true), 500);
+      setMessages((prevMessages) => [...prevMessages, userMessage]);
+      setInput(""); // Clear input field
+      setBotTyping(true); // Start bot typing animation
 
       try {
-        const response = await axios.post("http://localhost:8000/chat/", {
-          messages: [
-            ...messages.map((msg) => ({
-              role: msg.type === "user" ? "user" : "ai",
-              content: msg.text,
-            })),
-            { role: "user", content: input },
-          ],
+        const response = await axios.post("http://localhost:7000/chat", {
+          messages: [...messages.map((msg) => ({ role: msg.type === "user" ? "user" : "ai", content: msg.text })), { role: "user", content: input }],
         });
+        
 
         const aiResponse = response.data.response;
         simulateTyping(aiResponse);
@@ -39,7 +33,7 @@ export default function ChatArea() {
   // Typing effect function
   const simulateTyping = (fullText) => {
     let index = 0;
-    setCurrentBotMessage("");
+    setCurrentBotMessage(""); // Reset current bot message before typing animation starts
 
     const interval = setInterval(() => {
       if (index < fullText.length) {
@@ -48,10 +42,10 @@ export default function ChatArea() {
       } else {
         clearInterval(interval);
         setMessages((prev) => [...prev, { text: fullText, type: "bot" }]);
-        setCurrentBotMessage("");
-        setBotTyping(false);
+        setCurrentBotMessage(""); // Reset after message is fully displayed
+        setBotTyping(false); // Stop typing animation
       }
-    }, 50);
+    }, 50); // Adjust speed of typing effect
   };
 
   return (
