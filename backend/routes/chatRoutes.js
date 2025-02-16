@@ -1,17 +1,33 @@
-// routes/chatRoutes.js
 const express = require("express");
-const authMiddleware = require("../middleware/authMiddleware");
-
 const router = express.Router();
+const Chat = require("../models/chatModel");
 
-router.get("/", authMiddleware, (req, res) => {
-  res.json({ message: `Welcome to Chat Area, ${req.user.userId}` });
+router.post("/send", async (req, res) => {
+  try {
+    const { email, text } = req.body;
+    if (!email || !text) {
+      return res.status(400).json({ error: "Email and text are required" });
+    }
+
+    let chat = await Chat.findOne({ email });
+    if (!chat) {
+      chat = new Chat({ email, messages: [] });
+    }
+
+    chat.messages.push({ text, type: "user" });
+    chat.messages.push({ text: "Hello! How can I assist you?", type: "bot" });
+
+    await chat.save();
+    res.json({ response: "Hello! How can I assist you?" });
+  } catch (error) {
+    console.error("Error saving chat:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 });
 
-router.post("/chat", authMiddleware, async (req, res) => {
-  const { messages } = req.body;
-  const botResponse = "Hello, how can I assist you today?";
-  res.json({ response: botResponse });
+router.get("/:email", async (req, res) => {
+  const chat = await Chat.findOne({ email: req.params.email });
+  res.json(chat || { messages: [] });
 });
 
 module.exports = router;

@@ -24,7 +24,7 @@ export default function ChatbotLogin() {
         email,
         password,
       });
-      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("userEmail", email); 
       navigate("/chat-area");
     } catch (err) {
       setError(err.response?.data?.message || "Invalid credentials. Please try again.");
