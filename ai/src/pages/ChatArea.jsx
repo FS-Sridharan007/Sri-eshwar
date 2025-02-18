@@ -139,18 +139,19 @@ export default function ChatArea() {
           )}
 
           {messages.map((msg, index) => (
-            <motion.div
-              key={index}
-              className={`p-3 rounded-lg max-w-xs transition-all duration-300 ${
-                msg.type === "user"
-                  ? "bg-[#00ADB5] self-end text-white"
-                  : "bg-[#F8B400] self-start text-black"
-              }`}
-            >
-              {msg.text}
-              {msg.type === "bot" && !isMuted && <TTSButton text={msg.text} />}
-            </motion.div>
-          ))}
+                <motion.div
+                  key={index}
+                  className={`p-3 rounded-lg max-w-xs transition-all duration-300 ${
+                    msg.type === "user"
+                      ? "bg-[#00ADB5] self-end text-white ml-auto"  // Align right
+                      : "bg-[#F8B400] self-start text-black mr-auto" // Align left
+                  }`}
+                >
+                  {msg.text}
+                  {msg.type === "bot" && !isMuted && <TTSButton text={msg.text} />}
+                </motion.div>
+              ))}
+
 
           {botTyping && <p className="text-gray-400 text-sm">ChatBot is typing...</p>}
           {currentBotMessage && (
