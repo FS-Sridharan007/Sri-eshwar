@@ -16,6 +16,8 @@ export default function ChatArea() {
   const userEmail = localStorage.getItem("userEmail");
 
   useEffect(() => {
+    if (!userEmail) return;
+
     const fetchChatHistory = async () => {
       try {
         const response = await axios.get(`http://localhost:8000/chat/${userEmail}`);
@@ -24,9 +26,8 @@ export default function ChatArea() {
         console.error("Error fetching chat history:", error);
       }
     };
-    if (userEmail) {
-      fetchChatHistory();
-    }
+
+    fetchChatHistory();
   }, [userEmail]);
 
   useEffect(() => {
@@ -34,22 +35,37 @@ export default function ChatArea() {
   }, [messages, currentBotMessage]);
 
   const sendMessage = async () => {
-    if (input.trim() === "") return;
+    const trimmedInput = input.trim();
+    if (!trimmedInput) return;
 
-    const userMessage = { text: input, type: "user" };
+    const userMessage = { text: trimmedInput, type: "user" };
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setBotTyping(true);
 
     try {
-      const response = await axios.post("http://localhost:8000/chat/send", {
+      // Store user message in the database
+      await axios.post("http://localhost:8000/chat/send", {
         email: userEmail,
-        text: input,
+        text: trimmedInput,
+        type: "user",
       });
 
-      const botReply = response.data.response;
-      simulateTyping(botReply);
+      // Send user input to AI backend
+      const response = await axios.post("http://localhost:7000/chat/", {
+        messages: [{ role: "user", content: trimmedInput }],
+      });
 
+      const botResponse = response.data.response;
+
+      // Store bot response in the database
+      await axios.post("http://localhost:8000/chat/send", {
+        email: userEmail,
+        text: botResponse,
+        type: "bot",
+      });
+
+      simulateTyping(botResponse);
     } catch (error) {
       console.error("Error fetching AI response:", error);
       simulateTyping("Oops! Something went wrong. Please try again.");
@@ -59,6 +75,8 @@ export default function ChatArea() {
   const simulateTyping = (fullText) => {
     let index = 0;
     setCurrentBotMessage("");
+
+    stopSpeech(); // Ensure previous speech doesn't overlap
 
     if (!isMuted) {
       speakText(fullText);
@@ -79,6 +97,8 @@ export default function ChatArea() {
 
   const speakText = (text) => {
     if (!window.speechSynthesis) return;
+    stopSpeech();
+
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = "en-US";
     utterance.rate = 1.2;
@@ -86,8 +106,13 @@ export default function ChatArea() {
     utterance.volume = 1;
 
     utteranceRef.current = utterance;
-    window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utterance);
+  };
+
+  const stopSpeech = () => {
+    if (utteranceRef.current) {
+      window.speechSynthesis.cancel();
+    }
   };
 
   return (
@@ -138,7 +163,7 @@ export default function ChatArea() {
         </div>
 
         <div className="flex items-center bg-[#222831]/50 p-3 rounded-lg mt-4">
-          <STTButton onResult={(transcript) => setInput(transcript)} />
+          <STTButton onResult={(transcript) => setInput((prev) => prev + " " + transcript)} />
           <input
             type="text"
             className="flex-1 bg-transparent text-white placeholder-gray-400 outline-none p-2 border-b border-gray-600"
@@ -150,13 +175,15 @@ export default function ChatArea() {
           <motion.button
             className="mx-3 p-2 rounded-full bg-gray-600 hover:bg-gray-500"
             onClick={() => setIsMuted((prev) => !prev)}
+            aria-label={isMuted ? "Unmute bot voice" : "Mute bot voice"}
           >
             {isMuted ? <VolumeX size={20} className="text-red-400" /> : <Volume2 size={20} className="text-green-400" />}
           </motion.button>
 
           <motion.button
-            className="bg-[#0077FF] px-4 py-2 rounded-lg hover:bg-[#005BBB]"
+            className={`bg-[#0077FF] px-4 py-2 rounded-lg ${input.trim() ? "hover:bg-[#005BBB]" : "opacity-50 cursor-not-allowed"}`}
             onClick={sendMessage}
+            disabled={!input.trim()}
           >
             Send
           </motion.button>
