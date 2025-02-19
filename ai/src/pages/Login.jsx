@@ -19,18 +19,27 @@ export default function ChatbotLogin() {
       setError("Please enter both email and password");
       return;
     }
+  
     try {
       const response = await axios.post("http://localhost:5000/api/auth/login", {
         email,
         password,
       });
-      localStorage.setItem("userEmail", email); 
-      navigate("/chat-area");
+  
+      const { token } = response.data; // Extract token from response
+  
+      if (token) {
+        localStorage.setItem("userToken", token); // Store token for authentication
+        localStorage.setItem("userEmail", email); // Store email (optional)
+        navigate("/chat-area", { replace: true }); // Redirect user & prevent back navigation
+      } else {
+        setError("Login failed. Please try again.");
+      }
     } catch (err) {
       setError(err.response?.data?.message || "Invalid credentials. Please try again.");
     }
   };
-
+  
   return (
     <div className={`flex items-center justify-center min-h-screen ${darkMode ? "bg-gray-900" : "bg-blue-100"} relative`}>
       <ChatbotGreeting />

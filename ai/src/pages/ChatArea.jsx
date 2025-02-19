@@ -4,6 +4,7 @@ import axios from "axios";
 import STTButton from "./STTButton";
 import TTSButton from "./TTSButton";
 import { Volume2, VolumeX } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function ChatArea() {
   const [messages, setMessages] = useState([]);
@@ -14,6 +15,7 @@ export default function ChatArea() {
   const messagesEndRef = useRef(null);
   const utteranceRef = useRef(null);
   const userEmail = localStorage.getItem("userEmail");
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!userEmail) return;
@@ -138,6 +140,12 @@ export default function ChatArea() {
     </motion.div>
   ))}
 
+  const handleLogout = () => {
+    localStorage.removeItem("userToken");
+    navigate("/login", { replace: true });
+  };
+
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -149,10 +157,20 @@ export default function ChatArea() {
         ChatBot
       </motion.h1>
 
+      {/* Logout Button */}
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={handleLogout}
+          className="absolute top-5 right-6 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-300"
+        >
+            Logout
+        </motion.button>
+
       <motion.div className="w-[75%] h-[75vh] flex flex-col bg-[#EEEEEE]/10 backdrop-blur-lg p-6 rounded-2xl shadow-lg">
         {messages.length === 0 && (
           <motion.h2 className="text-center text-lg text-gray-300 mb-2">
-            💬 Let's chat! I'm here to assist you. 🚀
+            💬 Let&apos;s chat! I&apos;m here to assist you. 🚀
           </motion.h2>
         )}
 
