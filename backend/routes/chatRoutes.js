@@ -2,32 +2,46 @@ const express = require("express");
 const router = express.Router();
 const Chat = require("../models/chatModel");
 
-router.post("/send", async (req, res) => {
-  try {
-    const { email, text } = req.body;
-    if (!email || !text) {
-      return res.status(400).json({ error: "Email and text are required" });
-    }
+router.post("/sendMessage", async (req, res) => {
+  const { email, userText, botText } = req.body;
 
+  try {
     let chat = await Chat.findOne({ email });
+
     if (!chat) {
       chat = new Chat({ email, messages: [] });
     }
 
-    chat.messages.push({ text, type: "user" });
-    chat.messages.push({ text: "Hello! How can I assist you?", type: "bot" });
+    // Remove <think>...</think> content from bot response
+    const cleanBotText = botText.replace(/<think>[\s\S]*?<\/think>\n*/, "").trim();
+
+    // Create a structured message entry
+    const newMessage = {
+      user_text: userText,
+      user_type: "user",
+      bot_text: cleanBotText,
+      bot_type: "bot",
+      timestamp: new Date(),
+    };
+
+    chat.messages.push(newMessage);
 
     await chat.save();
-    res.json({ response: "Hello! How can I assist you?" });
+
+    res.status(200).json({ success: true, chat });
   } catch (error) {
-    console.error("Error saving chat:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
 router.get("/:email", async (req, res) => {
-  const chat = await Chat.findOne({ email: req.params.email });
-  res.json(chat || { messages: [] });
+  try {
+    const chat = await Chat.findOne({ email: req.params.email });
+    res.json(chat || { messages: [] });
+  } catch (error) {
+    console.error("Error fetching chat:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 });
 
 module.exports = router;

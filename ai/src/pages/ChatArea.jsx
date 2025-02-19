@@ -21,7 +21,9 @@ export default function ChatArea() {
     const fetchChatHistory = async () => {
       try {
         const response = await axios.get(`http://localhost:8000/chat/${userEmail}`);
-        setMessages(response.data.messages || []);
+        if (response.data.messages?.length > 0) {
+          setMessages(response.data.messages);
+        }
       } catch (error) {
         console.error("Error fetching chat history:", error);
       }
@@ -37,51 +39,52 @@ export default function ChatArea() {
   const sendMessage = async () => {
     const trimmedInput = input.trim();
     if (!trimmedInput) return;
-
+  
     const userMessage = { text: trimmedInput, type: "user" };
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setBotTyping(true);
-
+  
     try {
-      // Store user message in the database
       await axios.post("http://localhost:8000/chat/send", {
         email: userEmail,
         text: trimmedInput,
         type: "user",
       });
-
-      // Send user input to AI backend
+  
       const response = await axios.post("http://localhost:7000/chat/", {
         messages: [{ role: "user", content: trimmedInput }],
       });
-
-      const botResponse = response.data.response;
-
-      // Store bot response in the database
+  
+      let botResponse = response.data.response || "I'm here to help!";
+      
+      // Extract the actual response, removing <think>...</think>
+      const cleanedResponse = botResponse.replace(/<think>[\s\S]*?<\/think>\n*/, "").trim();
+  
+      // Save bot response to chat history
       await axios.post("http://localhost:8000/chat/send", {
         email: userEmail,
-        text: botResponse,
+        text: cleanedResponse,
         type: "bot",
       });
-
-      simulateTyping(botResponse);
+  
+      simulateTyping(cleanedResponse);
     } catch (error) {
       console.error("Error fetching AI response:", error);
       simulateTyping("Oops! Something went wrong. Please try again.");
     }
   };
-
+  
   const simulateTyping = (fullText) => {
-    let index = 0;
     setCurrentBotMessage("");
-
-    stopSpeech(); // Ensure previous speech doesn't overlap
-
+    stopSpeech();
+    setBotTyping(true);
+  
     if (!isMuted) {
       speakText(fullText);
     }
-
+  
+    let index = 0;
     const interval = setInterval(() => {
       if (index < fullText.length) {
         setCurrentBotMessage((prev) => prev + fullText[index]);
@@ -94,6 +97,8 @@ export default function ChatArea() {
       }
     }, 50);
   };
+  
+  
 
   const speakText = (text) => {
     if (!window.speechSynthesis) return;
@@ -115,6 +120,24 @@ export default function ChatArea() {
     }
   };
 
+  const cleanBotMessage = (message) => {
+    return message.replace(/<think>[\s\S]*?<\/think>\n*/, "").trim();
+  };
+  
+  {messages.map((msg, index) => (
+    <motion.div
+      key={index}
+      className={`p-3 rounded-lg max-w-xs transition-all duration-300 ${
+        msg.type === "user"
+          ? "bg-[#00ADB5] self-end text-white ml-auto"
+          : "bg-[#F8B400] self-start text-black mr-auto"
+      }`}
+    >
+      {msg.type === "user" ? msg.text : cleanBotMessage(msg.text)}
+      {msg.type === "bot" && !isMuted && <TTSButton text={cleanBotMessage(msg.text)} />}
+    </motion.div>
+  ))}
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -127,31 +150,26 @@ export default function ChatArea() {
       </motion.h1>
 
       <motion.div className="w-[75%] h-[75vh] flex flex-col bg-[#EEEEEE]/10 backdrop-blur-lg p-6 rounded-2xl shadow-lg">
-        <motion.h2 className="text-center text-lg text-gray-300 mb-2">
-          💬 How can I help you today?
-        </motion.h2>
+        {messages.length === 0 && (
+          <motion.h2 className="text-center text-lg text-gray-300 mb-2">
+            💬 Let's chat! I'm here to assist you. 🚀
+          </motion.h2>
+        )}
 
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {messages.length === 0 && (
-            <p className="text-gray-400 text-center">
-              Let's chat! I'm here to assist you. 🚀
-            </p>
-          )}
-
           {messages.map((msg, index) => (
-                <motion.div
-                  key={index}
-                  className={`p-3 rounded-lg max-w-xs transition-all duration-300 ${
-                    msg.type === "user"
-                      ? "bg-[#00ADB5] self-end text-white ml-auto"  // Align right
-                      : "bg-[#F8B400] self-start text-black mr-auto" // Align left
-                  }`}
-                >
-                  {msg.text}
-                  {msg.type === "bot" && !isMuted && <TTSButton text={msg.text} />}
-                </motion.div>
-              ))}
-
+            <motion.div
+              key={index}
+              className={`p-3 rounded-lg max-w-xs transition-all duration-300 ${
+                msg.type === "user"
+                  ? "bg-[#00ADB5] self-end text-white ml-auto"
+                  : "bg-[#F8B400] self-start text-black mr-auto"
+              }`}
+            >
+              {msg.text}
+              {msg.type === "bot" && !isMuted && <TTSButton text={msg.text} />}
+            </motion.div>
+          ))}
 
           {botTyping && <p className="text-gray-400 text-sm">ChatBot is typing...</p>}
           {currentBotMessage && (
@@ -182,7 +200,9 @@ export default function ChatArea() {
           </motion.button>
 
           <motion.button
-            className={`bg-[#0077FF] px-4 py-2 rounded-lg ${input.trim() ? "hover:bg-[#005BBB]" : "opacity-50 cursor-not-allowed"}`}
+            className={`bg-[#0077FF] px-4 py-2 rounded-lg ${
+              input.trim() ? "hover:bg-[#005BBB]" : "opacity-50 cursor-not-allowed"
+            }`}
             onClick={sendMessage}
             disabled={!input.trim()}
           >
