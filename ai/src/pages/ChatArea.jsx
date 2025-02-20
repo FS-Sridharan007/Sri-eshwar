@@ -5,6 +5,7 @@ import STTButton from "./STTButton";
 import TTSButton from "./TTSButton";
 import { Volume2, VolumeX } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import FeedbackForm from "../components/FeedbackForm";
 
 export default function ChatArea() {
   const [messages, setMessages] = useState([]);
@@ -226,6 +227,7 @@ export default function ChatArea() {
           >
             Send
           </motion.button>
+          <FeedbackForm />
         </div>
       </motion.div>
     </motion.div>
