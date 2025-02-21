@@ -1,49 +1,48 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const cors = require("cors");
-const dotenv = require("dotenv");
-const chatRoutes = require("./routes/chatRoutes");
-const ChatModel = require("./models/chatModel"); // Import chatRoutes
+const nodemailer = require("nodemailer");
+require("dotenv").config();
 
-dotenv.config();
 const app = express();
-const PORT = 8000;
-
-// Middleware
 app.use(express.json());
 app.use(cors());
 
-app.post("/chat/send", async (req, res) => {
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+  tls: {
+    rejectUnauthorized: false,
+  },
+});
+
+app.post("/send-feedback", async (req, res) => {
+  const { email, feedback } = req.body;
+
+  if (!email || !feedback.trim()) {
+    return res.status(400).json({ error: "Email and feedback are required!" });
+  }
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: "jairusgold0112@gmail.com",
+    subject: "New Feedback Received",
+    text: `You have received new feedback.\n\nFrom: ${email}\n\nMessage: ${feedback}`,
+  };
+
   try {
-    const { email, text, type } = req.body;
-    if (!email || !text) {
-      return res.status(400).json({ error: "Email and message text are required" });
-    }
-    await ChatModel.updateOne(
-      { email },
-      { $push: { messages: { text, type } } },
-      { upsert: true }
-    );
-    res.status(200).json({ success: true });
+    const info = await transporter.sendMail(mailOptions);
+    console.log("✅ Email sent:", info.response);
+    res.status(200).json({ message: "Feedback sent successfully!" });
   } catch (error) {
-    console.error("Error saving chat message:", error);
-    res.status(500).json({ error: "Server error" });
+    console.error("❌ Error sending email:", error);
+    res.status(500).json({ error: "Failed to send feedback. Please try again later." });
   }
 });
 
-
-// MongoDB Connection
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-const db = mongoose.connection;
-db.on("error", console.error.bind(console, "MongoDB connection error:"));
-db.once("open", () => console.log("Connected to MongoDB"));
-
-// Use Chat Routes
-app.use("/chat", chatRoutes);
-
+const PORT = 4000;
 app.listen(PORT, () => {
-  console.log(`Chat Server running on http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });

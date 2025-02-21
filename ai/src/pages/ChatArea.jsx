@@ -17,6 +17,7 @@ export default function ChatArea() {
   const utteranceRef = useRef(null);
   const userEmail = localStorage.getItem("userEmail");
   const navigate = useNavigate();
+  const loggedInUserEmail = "user@example.com";
 
   useEffect(() => {
     if (!userEmail) return;
@@ -227,9 +228,11 @@ export default function ChatArea() {
           >
             Send
           </motion.button>
-          <FeedbackForm />
         </div>
       </motion.div>
+          <div>
+          <FeedbackForm loggedInUserEmail={loggedInUserEmail} />
+          </div>
     </motion.div>
   );
 }
